@@ -112,6 +112,7 @@ dmypy.json
 
 # project specific
 *.html
+.DS_Store
 
 
 
