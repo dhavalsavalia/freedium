@@ -24,6 +24,8 @@ class Medium:
         # TODO Make use of filter or something
         # I am NOOB lol
         for e in self.soup.findAll('img'):
+            # this is to prevent those blurry images
+            # and some sizing related issues
             try:
                 e['sizes']
                 e['class'] = 'img-fluid mx-auto d-block'
@@ -37,14 +39,18 @@ class Medium:
                 e.extract()
 
         for e in self.soup.findAll('a'):
+            # this is to overcome relative linking issue
+            # also gets domain name! how lame? I know.
             if e['href'].startswith('/'):
                 self.domain = re.search(r'^http[s]*:\/\/[\w\.]*', self.article_url).group()
                 e['href'] = self.domain+e['href']
 
         for e in self.soup.findAll('figcaption'):
+            # Some stupid styling
             e['class'] = 'blockquote text-center'
 
         for e in self.soup.findAll('blockquote'):
+            # and some more
             e['class'] = 'text-center'
         
         return 0
@@ -66,6 +72,7 @@ class Medium:
 
         self.published_date = self.soup.find(property='article:published_time')['content'][:10]
         self.published_time = self.soup.find(property='article:published_time')['content'][11:19]
+        # TODO use html injection
         return_string = f"""<html>
     <head>
         <title>{self.title}</title>
