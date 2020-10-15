@@ -1,6 +1,8 @@
 import argparse
 import re
 import lxml.html.clean
+import urllib
+import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,7 +18,7 @@ class Medium:
         self.article_url = article_url
         self.article_response = requests.get(article_url)
         self.soup = BeautifulSoup(self.article_response.text, "html.parser")
-    
+
     def clean_crap(self):
         """
             Cleans most of the Medium crap that it adds
@@ -52,10 +54,10 @@ class Medium:
         for e in self.soup.findAll('blockquote'):
             # and some more
             e['class'] = 'text-center'
-        
+
         return 0
 
-    
+
     def get_article_meta(self):
         """
             Parces meta-data of the article
@@ -94,11 +96,11 @@ class Medium:
         """
         # TODO Fix h1, h2 for subheaders of content
         # TODO Fix inline Medium links
-        content = self.soup.find('article').find('div').find_all(['section', 'hr'])
+        content = self.soup.find('article').find('div').find_all(['section', 'hr','pre'])
         final_content = ''
         for count, element in enumerate(content):
             if count==0:
-                for i in element.find_all(['p', 'figure']):
+                for i in element.find_all(['p', 'figure', 'li', 'pre']):
                     final_content += i.prettify()
             else:
                 final_content += element.prettify()
@@ -124,6 +126,18 @@ def parse():
     )
     return parser.parse_args()
 
+def get_article_name(article_url):
+    article_url_ist = article_url.split('/')
+    site_name = article_url_ist[2].split('.')[0]
+    article_name = article_url_ist[-1]
+    article_name = "-".join(article_name.split('-')[:-1])
+
+    file_name = article_name + "-" + site_name + ".html"
+
+    return file_name
+
+
+
 
 def main():
     article_url = input('Please enter article url: ')
@@ -131,9 +145,10 @@ def main():
     article_fetcher.clean_crap()
     article_meta = article_fetcher.get_article_meta()
     article_content = article_fetcher.get_article_content()
+    file_name = get_article_name(article_url)
     content = article_meta + '\n' + article_content
     # TODO Use title-slug | possibly with publication
-    with open(f'main.html', 'w') as html_file:
+    with open(os.path.join('Output', file_name), 'w') as html_file:
         html_file.write(content)
 
 if __name__=='__main__':
