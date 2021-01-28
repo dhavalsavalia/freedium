@@ -13,7 +13,6 @@ class Medium:
         Base class to perform operations
     """
     # TODO Show debug messages
-    # TODO Make user page beautiful
     def __init__(self, article_url):
         self.article_url = article_url
         self.article_response = requests.get(article_url)
